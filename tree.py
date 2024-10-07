@@ -60,6 +60,7 @@ def decision_tree_train(data, remaining_features):
     
     # Select the feature with the highest Information Gain
     best_feature = max(gains, key=gains.get)
+    print(gains)
     best_feature_index = header.index(best_feature)
     
     # Partition the data based on the best feature's values
@@ -100,10 +101,6 @@ def print_if_then_tree(node):
             results.append(condition + print_if_then_tree(branch))
         return '\n'.join(results)
            
-
-
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python .py .csv")
