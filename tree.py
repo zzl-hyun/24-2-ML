@@ -21,25 +21,30 @@ def read_csv(filename):
 def entropy(data_subset):
     label_counts = Counter(row[-1] for row in data_subset)
     total_samples = len(data_subset)
-    
     ent = 0
     for count in label_counts.values():
         p = count / total_samples
         ent -= p * math.log2(p) 
-    
+        
     return ent
 
 def information_gain(data, feature_index):
     total_entropy = entropy(data)
+    
     feature_values = [row[feature_index] for row in data]
     value_counts = Counter(feature_values)
     total_samples = len(data)
     
     feature_entropy = 0
     for value, count in value_counts.items():
-        subset = [row for row in data if row[feature_index] == value]
+        subset = []
+        for row in data:
+            # print(row[0])
+            if row[feature_index] == value:
+                subset.append(row)
         feature_entropy += (count / total_samples) * entropy(subset)
-    
+
+    print(f"Gain({header[feature_index]}): {total_entropy - feature_entropy:.3f}")
     return total_entropy - feature_entropy
 
 def decision_tree_train(data, remaining_features):
@@ -47,7 +52,7 @@ def decision_tree_train(data, remaining_features):
     labels = [row[-1] for row in data]
     label_counts = Counter(labels)
     most_common_label = label_counts.most_common(1)[0][0]  # Default guess is the most frequent label
-    
+    # print(most_common_label)
     # Base cases
     if len(set(labels)) == 1:  # If all labels are the same
         return Leaf(most_common_label)
@@ -56,12 +61,17 @@ def decision_tree_train(data, remaining_features):
         return Leaf(most_common_label)
     
     # Calculate Information Gain for each remaining feature
-    gains = {feature: information_gain(data, i) for i, feature in enumerate(header[:-1]) if feature in remaining_features}
+    gains = {}
+    for i, feature in enumerate(header[:-1]):
+        if feature in remaining_features:
+            gains[feature] = information_gain(data, i)
     
     # Select the feature with the highest Information Gain
     best_feature = max(gains, key=gains.get)
-    print(gains)
     best_feature_index = header.index(best_feature)
+    print(f"Best Feature: {best_feature}\n")
+    
+    # print(f"gains: {gains}, best_feature: {best_feature}")
     
     # Partition the data based on the best feature's values
     partitions = {}
@@ -70,7 +80,7 @@ def decision_tree_train(data, remaining_features):
         if feature_value not in partitions:
             partitions[feature_value] = []
         partitions[feature_value].append(row)
-    
+        
     # Recursively build the branch
     branch = {}
     remaining_features = remaining_features - {best_feature}
@@ -79,12 +89,11 @@ def decision_tree_train(data, remaining_features):
     
     return Node(best_feature, branch)
 
-
 # Function to visualize the tree
 def print_tree(node, depth=0):
     indent = "  " * depth
     if isinstance(node, Leaf):
-        print(f"\tthen Play Tennis = {node.value}")
+        print("  "*depth, f"then Play Tennis = {node.value}")
     else:
         print(f"{indent}Node: {node.feature}")
         for value, branch in node.branch.items():
@@ -110,18 +119,18 @@ if __name__ == "__main__":
     header = data[0]
     data_rows = data[1:]
 
-    # Calculate entropy of the whole dataset
-    total_entropy = entropy(data_rows)
-    gains = {}
-    for i in range(len(header) - 1):  # Exclude the target label column
-        gains[header[i]] = information_gain(data_rows, i)
+    # # Calculate entropy of the whole dataset
+    # total_entropy = entropy(data_rows)
+    # print(f"Entropy(D): {total_entropy}")
+    # gains = {}
+    # for i in range(len(header) - 1):  # Exclude the target label column
+    #     gains[header[i]] = information_gain(data_rows, i)
     
-    print(total_entropy, gains)
+    #print(total_entropy, gains)
     
     # Initial call to the decision tree function
     remaining_features = set(header[:-1])  # Exclude target label "Play Tennis"
     tree = decision_tree_train(data_rows, remaining_features)
-    # Print the resulting tree
     print_tree(tree)
-    if_then_output = print_if_then_tree(tree)
-    print(if_then_output)
+    print(print_if_then_tree(tree))
+    
