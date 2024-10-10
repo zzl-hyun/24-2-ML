@@ -94,7 +94,7 @@ def decision_tree_train(data, features):
         branch[value] = decision_tree_train(subset, remaining_features)
     return Node(best_feature, branch)
             
-            
+        
 def print_if_then(node, depth=0):
     if isinstance(node, Leaf):
         return "\t" * depth + f"then Play Tennis = {node.value}"
