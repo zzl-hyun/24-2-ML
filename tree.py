@@ -83,13 +83,15 @@ def decision_tree_train(data, features):
     best_feature, best_feature_index = select_best_feature(data, features)
     groups = split_data(data, best_feature_index)
     
+ 
+    # updated_features = features.copy()
+    # updated_features.remove(best_feature)
+    # for value, subset in groups.items():
+    #     branch[value] = decision_tree_train(subset, updated_features)
     branch = {}
-    updated_features = features.copy()
-    updated_features.remove(best_feature)
-    
+    remaining_features = features - {best_feature}
     for value, subset in groups.items():
-        branch[value] = decision_tree_train(subset, updated_features)
-    
+        branch[value] = decision_tree_train(subset, remaining_features)
     return Node(best_feature, branch)
             
 def print_if_then(node, depth=0):
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     header = data[0]
     data_rows = data[1:]
     # print(header[:-1])
-    features = header[:-1]
+    features = set(header[:-1])
 
     tree = decision_tree_train(data_rows, features)
     # tree = build_tree(data_rows, features)
