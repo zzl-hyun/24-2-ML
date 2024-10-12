@@ -99,6 +99,7 @@ def decision_tree_train(data, features):
 
     best_feature, best_feature_index = select_best_feature(data, features)
     remaining_features = features - {best_feature}
+
     groups = split_data(data, best_feature_index)
     branch = {}
 
@@ -113,9 +114,8 @@ def print_if_then(node, depth=0):
     else:
         results = []
         for value, branch in node.branch.items():
-            condition = "\t" * depth + f"if {node.feature} is {value}"
-            subtree = print_if_then(branch, depth + 1)
-            results.append(condition + "\n" + subtree)
+            str = "\t" * depth + f"if {node.feature} is {value}"
+            results.append(str + "\n" + print_if_then(branch, depth + 1))
             
         return '\n'.join(results)
            
