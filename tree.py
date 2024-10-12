@@ -14,6 +14,7 @@ class Leaf:
     def __init__(self, value):
         self.value = value
 
+
 def read_csv(filename):
     with open(filename, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -21,6 +22,7 @@ def read_csv(filename):
     
     return data
 
+# 엔트로피 계산 log2로 계산!!
 def entropy(data):
     label_counts = Counter()
     for row in data:
@@ -33,14 +35,15 @@ def entropy(data):
         # print(entropy)
     return entropy
 
+
 def information_gain(data, feature_index):
     total_entropy = entropy(data)
-    
     feature_values = []
+
     for row in data:
         feature_values.append(row[feature_index])
+
     value_counts = Counter(feature_values)
-    total_samples = len(data)
     feature_entropy = 0
     
     for value, count in value_counts.items():
@@ -49,13 +52,14 @@ def information_gain(data, feature_index):
             # print(row[0])
             if row[feature_index] == value:
                 subset.append(row)
-        feature_entropy += (count / total_samples) * entropy(subset)
+        feature_entropy += (count / len(data)) * entropy(subset)
 
     # print(f"Gain({header[feature_index]}): {total_entropy - feature_entropy:.3f}")
     return total_entropy - feature_entropy
 
 def select_best_feature(data, remaining_features):
     gains = {}
+
     for i, feature in enumerate(header[:-1]):
         if feature in remaining_features:
             gains[feature] = information_gain(data, i)
@@ -68,6 +72,7 @@ def select_best_feature(data, remaining_features):
 
 def split_data(data, feature_index):
     groups = {}
+
     for row in data:
         feature_value = row[feature_index]
         if feature_value not in groups:
@@ -79,8 +84,8 @@ def split_data(data, feature_index):
     return groups
 
 def decision_tree_train(data, features):
- 
     labels = []
+    
     for row in data:
         labels.append(row[-1])
 
@@ -93,9 +98,9 @@ def decision_tree_train(data, features):
         return Leaf(most_common_label)
 
     best_feature, best_feature_index = select_best_feature(data, features)
+    remaining_features = features - {best_feature}
     groups = split_data(data, best_feature_index)
     branch = {}
-    remaining_features = features - {best_feature}
 
     for value, subset in groups.items():
         branch[value] = decision_tree_train(subset, remaining_features)
@@ -115,7 +120,6 @@ def print_if_then(node, depth=0):
         return '\n'.join(results)
            
 if __name__ == "__main__":
-    
     data = read_csv(sys.argv[1])
     header = data[0]
     rows = data[1:]
