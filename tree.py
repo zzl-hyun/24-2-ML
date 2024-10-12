@@ -3,10 +3,13 @@ import sys
 import math
 from collections import Counter
 
+# 결정 기준
 class Node:
     def __init__(self, feature, branch):
         self.feature = feature
         self.branch = branch
+
+# 예측 값
 class Leaf:
     def __init__(self, value):
         self.value = value
@@ -19,7 +22,10 @@ def read_csv(filename):
     return data
 
 def entropy(data):
-    label_counts = Counter(row[-1] for row in data)
+    label_counts = Counter()
+    for row in data:
+        label_counts[row[-1]] += 1
+
     entropy = 0
     for count in label_counts.values():
         p = count / len(data)
@@ -30,7 +36,9 @@ def entropy(data):
 def information_gain(data, feature_index):
     total_entropy = entropy(data)
     
-    feature_values = [row[feature_index] for row in data]
+    feature_values = []
+    for row in data:
+        feature_values.append(row[feature_index])
     value_counts = Counter(feature_values)
     total_samples = len(data)
     feature_entropy = 0
@@ -43,7 +51,7 @@ def information_gain(data, feature_index):
                 subset.append(row)
         feature_entropy += (count / total_samples) * entropy(subset)
 
-    print(f"Gain({header[feature_index]}): {total_entropy - feature_entropy:.3f}")
+    # print(f"Gain({header[feature_index]}): {total_entropy - feature_entropy:.3f}")
     return total_entropy - feature_entropy
 
 def select_best_feature(data, remaining_features):
@@ -54,7 +62,7 @@ def select_best_feature(data, remaining_features):
             
     best_feature = max(gains, key=gains.get)
     best_feature_index = header.index(best_feature)
-    print(f"Best Feature: {best_feature}")
+    # print(f"Best Feature: {best_feature}")
     
     return best_feature, best_feature_index
 
@@ -71,7 +79,11 @@ def split_data(data, feature_index):
     return groups
 
 def decision_tree_train(data, features):
-    labels = [row[-1] for row in data]
+ 
+    labels = []
+    for row in data:
+        labels.append(row[-1])
+
     label_counts = Counter(labels)
     most_common_label = label_counts.most_common(1)[0][0]
     
@@ -82,14 +94,9 @@ def decision_tree_train(data, features):
 
     best_feature, best_feature_index = select_best_feature(data, features)
     groups = split_data(data, best_feature_index)
-    
- 
-    # updated_features = features.copy()
-    # updated_features.remove(best_feature)
-    # for value, subset in groups.items():
-    #     branch[value] = decision_tree_train(subset, updated_features)
     branch = {}
     remaining_features = features - {best_feature}
+
     for value, subset in groups.items():
         branch[value] = decision_tree_train(subset, remaining_features)
     return Node(best_feature, branch)
@@ -108,17 +115,14 @@ def print_if_then(node, depth=0):
         return '\n'.join(results)
            
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python .py .csv")
-        sys.exit(1)
     
     data = read_csv(sys.argv[1])
     header = data[0]
-    data_rows = data[1:]
+    rows = data[1:]
     # print(header[:-1])
     features = set(header[:-1])
 
-    tree = decision_tree_train(data_rows, features)
-    # tree = build_tree(data_rows, features)
-    print("Builded Tree\n" + print_if_then(tree))
+    tree = decision_tree_train(rows, features)
+
+    print(print_if_then(tree))
     
