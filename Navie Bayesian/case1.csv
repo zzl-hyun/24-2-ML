@@ -1,0 +1,13 @@
+Outlook,Temperature,Humidity,Wind,Play Tennis
+Rainy,Hot,High,TRUE,No
+Overcast,Cool,Normal,FALSE,Yes
+Overcast,Hot,High,TRUE,Yes
+Sunny,Hot, High, FALSE , No
+Rainy,Mild, High, FALSE , No
+Sunny,Hot, High, TRUE , No
+Rainy,Cool, Normal, FALSE , Yes
+Rainy,Mild,Normal,FALSE,Yes
+Sunny,Cool,High,FALSE,Yes
+Rainy,Cool,High,TRUE,No
+Overcast,Mild,Normal,FALSE,Yes
+Sunny,Hot,High,TRUE,No

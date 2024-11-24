@@ -24,9 +24,3 @@ Rainy,Mild,High,TRUE,No
 Sunny,Mild,Normal,TRUE,Yes
 Rainy,Cool,Normal,TRUE,Yes
 Overcast,Hot,High,FALSE,Yes
-Sunny,Mild,High,FALSE,Yes
-Rainy,Mild,Normal,FALSE,Yes
-Sunny,Cool,High,FALSE,Yes
-Rainy,Cool,High,TRUE,No
-Overcast,Mild,Normal,FALSE,Yes
-Sunny,Hot,High,TRUE,No

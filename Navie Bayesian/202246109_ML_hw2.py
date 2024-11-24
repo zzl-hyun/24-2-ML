@@ -1,24 +1,23 @@
 import csv
 import argparse
 from collections import defaultdict
-from math import prod
 
 
 class NaiveBayes:
     def __init__(self):
-        self.label_counts = defaultdict(int)  # Label별 샘플 수
-        self.feature_counts = defaultdict(lambda: defaultdict(int))  # Feature별 조건부 확률 계산용
-        self.feature_values = defaultdict(set)  # 각 특징별 가능한 값 저장
+        self.label_counts = defaultdict(int)  # lable별 샘플 수
+        self.feature_counts = defaultdict(lambda: defaultdict(int))  # feature별 조건부 확률 계산용
+        self.feature_values = defaultdict(set)  # 각 feature별 가능한 값 저장
         self.total_samples = 0  # 전체 샘플 수
 
     def train(self, data):
         for row in data:
-            label = row[-1]  # 마지막 열이 라벨 값
+            label = row[-1]  # lable
             self.label_counts[label] += 1
             self.total_samples += 1
-            for i, feature in enumerate(row[:-1]):  # 마지막 열 제외
+            for i, feature in enumerate(row[:-1]):  # lable 제외
                 self.feature_counts[i][(feature, label)] += 1 # 카운트
-                self.feature_values[i].add(feature)  # 각 특징의 가능한 값을 저장
+                self.feature_values[i].add(feature)  # 각 feature의 가능한 값을 저장
 
     def predict(self, features):
         probabilities = {}
@@ -30,8 +29,8 @@ class NaiveBayes:
             for i in range(len(features)):
                 feature = features[i]   
 
-                nk = self.feature_counts[i].get((feature, label), 0) # 특정 레이블 v에서 전체 샘플 수                              
-                n = self.label_counts[label] # 레이블 v에서 전체 샘플 수                           
+                nk = self.feature_counts[i].get((feature, label), 0) # 특정 lable에서 전체 샘플 수                              
+                n = self.label_counts[label] # 전체 샘플에서 총 lable수                        
                 m = len(self.feature_values[i]) # 등가 샘플 크기 (m = V)
                 p = 1 / m   # 사전 확률 p = 1 / V (균등 분포 가정)
 
