@@ -1,6 +1,6 @@
 Outlook,Temperature,Humidity,Wind
-Sunny,Hot,High,Strong
-Sunny,Mild,High,Weak
-Rain,Cool,Normal,Strong
+Sunny,Hot,High,TRUE
+Sunny,Mild,High,FALSE
+Rain,Cool,Normal,TRUE
 Overcast,Mild,High,Weak
 Rain,Cool,Normal,Weak

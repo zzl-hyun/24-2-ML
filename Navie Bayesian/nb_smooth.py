@@ -9,6 +9,7 @@ class NaiveBayes:
         self.label_counts = defaultdict(int)  # Label별 샘플 수
         self.feature_counts = defaultdict(lambda: defaultdict(int))  # Feature별 조건부 확률 계산용
         self.total_samples = 0  # 전체 샘플 수
+        self.feature_values = defaultdict(set)  # 각 특징별 가능한 값 저장
 
     def train(self, data):
         for row in data:
@@ -17,15 +18,17 @@ class NaiveBayes:
             self.total_samples += 1
             for i, feature in enumerate(row[:-1]):  # 마지막 열 제외
                 self.feature_counts[i][(feature, label)] += 1
+                self.feature_values[i].add(feature)  # 각 특징의 가능한 값을 저장
 
     def predict(self, features):
         probabilities = {}
         for label in self.label_counts:
-            # 사전 확률
+            # 사전 확률 계산
             prior = self.label_counts[label] / self.total_samples
-            # 우도 계산
+            
+            # 우도 계산 (스무딩 적용)
             likelihood = prod(
-                self.feature_counts[i].get((feature, label), 0) / self.label_counts[label]
+                (self.feature_counts[i].get((feature, label), 0) + 1) / (self.label_counts[label] + len(self.feature_values[i]))
                 for i, feature in enumerate(features)
             )
             probabilities[label] = prior * likelihood
@@ -34,32 +37,26 @@ class NaiveBayes:
     @staticmethod
     def format_output(features, probabilities):
         """
-        Format and print the output with raw probabilities and the ratio.
+        Format and print the output with probabilities and the ratio.
         """
         yes_prob = probabilities.get("Yes", 0)
         no_prob = probabilities.get("No", 0)
 
         # Ratio 계산 및 출력
         ratio = round(yes_prob / no_prob, 5) if no_prob > 0 else "Undefined"
-        # if no_prob > 0:
-        #     ratio = round(yes_prob / no_prob)
-        # else:
-        #     ratio = "Null"
-        print(f"{', '.join(features[:])}")
+        print(f"{', '.join(features)}")
         print(f"Yes ({yes_prob:.5f}) No ({no_prob:.5f})")
         print(f"Ratio = {ratio}\n")
 
 
-def read_csv(filepath, has_label=True):
+def read_csv(filepath):
+    data =[]
     with open(filepath, 'r') as f:
         reader = csv.reader(f)
-        header = next(reader)  # Skip header
-        data = [row for row in reader]
-    if has_label:
-        return data
-    else:
-        return [row for row in data]
-
+        for row in reader:
+            data.append(row)
+    # print(data[1:])
+    return data[1:]
 
 
 if __name__ == "__main__":
@@ -69,13 +66,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # 훈련 데이터 로드 및 학습
-    training_data = read_csv(args.train, has_label=True)
-    # print(training_data)
+    training_data = read_csv(args.train)
+    print(training_data)
+    
     nb = NaiveBayes()
     nb.train(training_data)
 
     # 테스트 데이터 로드 및 예측
-    testing_data = read_csv(args.test, has_label=False)
+    testing_data = read_csv(args.test)
+    print(testing_data)
 
     # Make predictions and output results
     for features in testing_data:
